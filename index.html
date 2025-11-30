@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GASKETS "R" US — Free Estimate</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+  <!-- jsPDF & html2canvas via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="title">
+        <div class="line1">GASKETS “R” US</div>
+        <div class="line2">Guy Goldstein</div>
+        <div class="line3">Free Estimate</div>
+        <div class="contact">Cell: 917-687-2276 • Fax. 718-374-6543 • Email: gasketsrusnyc@gmail.com</div>
+        <div class="address">5-09 50th Ave. Apt #LL, L.I.C. NY 11101</div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Controls -->
+      <div id="controls">
+        <button id="generatePdf">Generate PDF</button>
+        <button id="saveLocal">Save (Local)</button>
+        <button id="resetForm">Reset</button>
+        <span id="estDisplay"></span>
+      </div>
+
+      <!-- The printable area — sized for Letter -->
+      <div id="print-area" class="letter">
+        <!-- Top rounded client box -->
+        <div class="client-box">
+          <div class="row">
+            <div class="label">NAME:</div>
+            <div class="field wide" contenteditable="true" id="f_name"></div>
+            <div class="label">DATE:</div>
+            <div class="field small" contenteditable="true" id="f_date"></div>
+            <div class="label">EST#:</div>
+            <div class="field small" contenteditable="true" id="f_est"></div>
+          </div>
+
+          <div class="row">
+            <div class="label">ADDRESS</div>
+            <div class="field wide" contenteditable="true" id="f_address"></div>
+            <div class="label">CITY:</div>
+            <div class="field small" contenteditable="true" id="f_city"></div>
+            <div class="label">ST:</div>
+            <div class="field tiny" contenteditable="true" id="f_state"></div>
+            <div class="label">ZIP:</div>
+            <div class="field tiny" contenteditable="true" id="f_zip"></div>
+          </div>
+
+          <div class="row">
+            <div class="label">PHONE:</div>
+            <div class="field medium" contenteditable="true" id="f_phone"></div>
+            <div class="label">FAX:</div>
+            <div class="field medium" contenteditable="true" id="f_fax"></div>
+            <div class="label">M/O#:</div>
+            <div class="field medium" contenteditable="true" id="f_mo"></div>
+          </div>
+
+          <div class="row">
+            <div class="label">OWNER:</div>
+            <div class="field small" contenteditable="true" id="f_owner"></div>
+            <div class="label">G.M:</div>
+            <div class="field small" contenteditable="true" id="f_gm"></div>
+            <div class="label">MANAGER:</div>
+            <div class="field small" contenteditable="true" id="f_manager"></div>
+            <div class="label">CHEF</div>
+            <div class="field small" contenteditable="true" id="f_chef"></div>
+          </div>
+        </div>
+
+        <!-- Items table -->
+        <div class="table-wrap">
+          <div class="table-head">
+            <div>Ite#</div>
+            <div>Style</div>
+            <div>Size</div>
+            <div>General</div>
+            <div>Extension</div>
+            <div>Item</div>
+            <div>Price</div>
+          </div>
+
+          <div id="rows">
+            <!-- We'll create 14 rows statically for exact layout -->
+            <!-- Each cell is contenteditable for direct typing -->
+            <!-- Row format: ite, style, size, general, extension, item, price -->
+            <!-- Repeat 14 times -->
+            <!-- Use template via JS to ensure consistent ids -->
+          </div>
+        </div>
+
+        <!-- Bottom notes and totals -->
+        <div class="bottom">
+          <div class="notes">
+            <div class="note-title">NOTE:</div>
+            <div class="note-field" contenteditable="true" id="f_note"></div>
+            <div class="note-field" contenteditable="true"></div>
+            <div class="note-field" contenteditable="true"></div>
+          </div>
+
+          <div class="totals">
+            <div class="tot-row">
+              <div class="tot-label">SUB- TOTAL:</div>
+              <div class="tot-field" contenteditable="true" id="f_subtotal"></div>
+            </div>
+            <div class="tot-row">
+              <div class="tot-label">TOTAL:</div>
+              <div class="tot-field" contenteditable="true" id="f_total"></div>
+            </div>
+            <div class="tot-row">
+              <div class="tot-label">TOTAL:</div>
+              <div class="tot-field" contenteditable="true" id="f_total2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end print-area -->
+    </main>
+
+    <footer>
+      <small>Tip: Tap any field to edit. On iPad: Share → Add to Home Screen to install.</small>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
