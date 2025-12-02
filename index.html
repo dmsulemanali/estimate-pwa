@@ -1,126 +1,263 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GASKETS “R” US — Free Estimate</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
-  <!-- html2pdf (includes html2canvas + jsPDF internally) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<meta charset="UTF-8">
+<title>Free Estimate</title>
+
+<!-- html2pdf -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+/* Reset and fonts */
+* { box-sizing: border-box; font-family: "Times New Roman", Times, serif; }
+body { margin: 12px; background: #f6f6f6; color: #000; }
+#app { max-width: 900px; margin: auto; }
+
+/* HEADER */
+header { text-align: center; margin-bottom: 8px; }
+.title .line1 { font-size: 32px; font-weight: 700; letter-spacing: 1px; }
+.title .line2 { font-size: 18px; margin-top: 4px; }
+.title .line3 { font-size: 28px; font-weight: 700; margin-top: 4px; }
+.title .contact, .title .address { font-size: 12px; margin-top: 6px; }
+
+/* Controls */
+#controls { display:flex; gap:10px; align-items:center; margin:10px 0; }
+#controls button { padding:8px 14px; border-radius:6px; border:1px solid #333; background:#fff; cursor:pointer; }
+#estDisplay { margin-left:12px; font-weight:600; }
+
+/* PRINT AREA */
+.letter {
+  width: 816px; 
+  background: #fff;
+  padding: 26px;
+  margin: auto;
+  border: 1px solid #ddd;
+}
+
+/* CLIENT BOX */
+.client-box { border:2px solid #ccc; border-radius:18px; padding:12px; margin-bottom:12px; }
+.client-box .row { display:flex; align-items:center; gap:8px; margin:6px 0; }
+.label { font-weight:700; min-width:60px; font-size:14px; }
+.field { padding:2px 6px; flex:1; }
+.field input { width:100%; border: none; border-bottom:1px solid #111; padding:4px 6px; font-size:14px; background:transparent; outline:none; }
+
+/* TABLE */
+.table-wrap { border:2px solid #cfcfcf; margin-bottom:8px; }
+.table-head {
+  display:grid;
+  grid-template-columns: 60px 100px 80px 120px 100px 1fr 90px;
+  background:#eaeaea;
+  border-bottom:2px solid #cfcfcf;
+  padding:8px 6px;
+  font-weight:700;
+}
+.table-head > div { border-right:1px solid #cfcfcf; padding-left:6px; }
+.row-item {
+  display:grid;
+  grid-template-columns: 60px 100px 80px 120px 100px 1fr 90px;
+  border-bottom:1px solid #ddd;
+  min-height:36px;
+  align-items:center;
+}
+.row-item > div { padding:4px; border-right:1px solid #eee; }
+.row-item input { width:100%; border:none; outline:none; padding:4px; background:transparent; font-size:13px; }
+
+/* PRICE FIELDS */
+.col-price input { text-align:right; }
+
+/* NOTES + TOTALS */
+.bottom { display:flex; gap:12px; margin-top:12px; }
+.notes { flex:1; border:2px solid #ddd; padding:10px; min-height:140px; }
+.note-title { font-style:italic; margin-bottom:6px; }
+
+/* Notes as lines */
+.notes-line {
+  border-bottom:1px solid #000;
+  height:22px;
+  margin-bottom:6px;
+}
+
+/* Totals */
+.totals { width:260px; border:2px solid #ddd; padding:6px; }
+.tot-row { display:flex; }
+.tot-label { flex:1; font-weight:700; padding:8px; border-right:1px solid #ddd; }
+.tot-field { width:110px; padding:8px; border-left:1px solid #ddd; text-align:right; }
+
+/* PRINT */
+@media print {
+  #controls { display:none; }
+  .letter { border:none; width:100%; padding:20px; }
+}
+</style>
 </head>
+
 <body>
-  <div id="app">
-    <header>
-      <div class="title">
-        <div class="line1">GASKETS “R” US</div>
-        <div class="line2">Guy Goldstein</div>
-        <div class="line3">Free Estimate</div>
-        <div class="contact">Cell: 917-687-2276  •  Fax. 718-374-6543 • Email: gasketsrusnyc@gmail.com</div>
-        <div class="address">5-09 50th Ave. Apt #LL, L.I.C. NY 11101</div>
-      </div>
-    </header>
 
-    <main>
-      <div id="controls">
-        <button id="generatePdf">Generate PDF</button>
-        <button id="saveLocal">Save (Local)</button>
-        <button id="resetForm">Reset</button>
-        <span id="estDisplay"></span>
-      </div>
+<div id="app">
 
-      <!-- Printable area sized for Letter -->
-      <div id="print-area" class="letter" role="document" aria-label="Estimate">
-        <div class="client-box">
-          <div class="row">
-            <div class="label">NAME:</div>
-            <div class="field wide"><input id="f_name" placeholder="Customer name"></div>
-            <div class="label">DATE:</div>
-            <div class="field small"><input id="f_date" placeholder="MM/DD/YYYY"></div>
-            <div class="label">EST#:</div>
-            <div class="field small"><input id="f_est" placeholder="auto"></div>
-          </div>
+<header>
+  <div class="title">
+    <div class="line1">GASKETS “R” US</div>
+    <div class="line2">Guy Goldstein</div>
+    <div class="line3">Free Estimate</div>
+    <div class="contact">Cell: 917-687-2276 • Fax: 718-374-6543 • Email: gasketsrusnyc@gmail.com</div>
+    <div class="address">5-09 50th Ave. Apt #LL, L.I.C. NY 11101</div>
+  </div>
+</header>
 
-          <div class="row">
-            <div class="label">ADDRESS</div>
-            <div class="field wide"><input id="f_address" placeholder="Address"></div>
-            <div class="label">CITY:</div>
-            <div class="field small"><input id="f_city" placeholder="City"></div>
-            <div class="label">ST:</div>
-            <div class="field tiny"><input id="f_state" placeholder="ST"></div>
-            <div class="label">ZIP:</div>
-            <div class="field tiny"><input id="f_zip" placeholder="ZIP"></div>
-          </div>
+<!-- Buttons -->
+<div id="controls">
+  <button onclick="generatePDF()">Generate PDF</button>
+  <span id="estDisplay">Last EST#: 1</span>
+</div>
 
-          <div class="row">
-            <div class="label">PHONE:</div>
-            <div class="field medium"><input id="f_phone" placeholder="Phone"></div>
-            <div class="label">FAX:</div>
-            <div class="field medium"><input id="f_fax" placeholder="Fax"></div>
-            <div class="label">M/O#:</div>
-            <div class="field medium"><input id="f_mo" placeholder="M/O#"></div>
-          </div>
+<div id="printArea" class="letter">
 
-          <div class="row">
-            <div class="label">OWNER:</div>
-            <div class="field small"><input id="f_owner" placeholder="Owner"></div>
-            <div class="label">G.M:</div>
-            <div class="field small"><input id="f_gm" placeholder="G.M."></div>
-            <div class="label">MANAGER:</div>
-            <div class="field small"><input id="f_manager" placeholder="Manager"></div>
-            <div class="label">CHEF</div>
-            <div class="field small"><input id="f_chef" placeholder="Chef"></div>
-          </div>
-        </div>
+<!-- CLIENT INFO -->
+<div class="client-box">
 
-        <!-- Items table -->
-        <div class="table-wrap">
-          <div class="table-head">
-            <div>Ite#</div>
-            <div>Style</div>
-            <div>Size</div>
-            <div>General</div>
-            <div>Extension</div>
-            <div>Item</div>
-            <div>Price</div>
-          </div>
+  <div class="row">
+    <div class="label">NAME:</div>
+    <div class="field"><input id="name"></div>
 
-          <div id="rows">
-            <!-- rows are generated by script.js -->
-          </div>
-        </div>
+    <div class="label" style="min-width:55px;">DATE:</div>
+    <div class="field"><input id="date" placeholder="MM/DD/YYYY"></div>
 
-        <!-- Bottom notes and totals -->
-        <div class="bottom">
-          <div class="notes">
-            <div class="note-title">NOTE:</div>
-            <textarea id="f_note" class="note-field" placeholder="Notes..."></textarea>
-          </div>
-
-          <div class="totals">
-            <div class="tot-row">
-              <div class="tot-label">SUB-TOTAL:</div>
-              <div class="tot-field" id="f_subtotal">0.00</div>
-            </div>
-            <div class="tot-row">
-              <div class="tot-label">TAX (8.875%):</div>
-              <div class="tot-field" id="f_tax">0.00</div>
-            </div>
-            <div class="tot-row">
-              <div class="tot-label">TOTAL:</div>
-              <div class="tot-field" id="f_total">0.00</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- end print-area -->
-    </main>
-
-    <footer>
-      <small>Tip: Click an input to type. On iPad: Share → Add to Home Screen to install.</small>
-    </footer>
+    <div class="label">EST#:</div>
+    <div class="field"><input id="estno" readonly></div>
   </div>
 
-  <script src="script.js"></script>
+  <div class="row">
+    <div class="label">ADDRESS:</div>
+    <div class="field"><input id="addr"></div>
+
+    <div class="label">CITY:</div>
+    <div class="field"><input id="city" style="width:120px;"></div>
+
+    <div class="label" style="min-width:25px;">ST:</div>
+    <div class="field"><input id="state" style="width:60px;"></div>
+
+    <div class="label">ZIP:</div>
+    <div class="field"><input id="zip" style="width:80px;"></div>
+  </div>
+
+  <div class="row">
+    <div class="label">PHONE:</div><div class="field"><input id="phone"></div>
+    <div class="label">FAX:</div><div class="field"><input id="fax"></div>
+    <div class="label">M/O#:</div><div class="field"><input id="mo"></div>
+  </div>
+
+  <div class="row">
+    <div class="label">OWNER:</div><div class="field"><input id="owner"></div>
+    <div class="label">G.M:</div><div class="field"><input id="gm"></div>
+    <div class="label">MANAGER:</div><div class="field"><input id="manager"></div>
+    <div class="label">CHEF:</div><div class="field"><input id="chef"></div>
+  </div>
+
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <div class="table-head">
+    <div>Item#</div>
+    <div>Style</div>
+    <div>Size</div>
+    <div>General</div>
+    <div>Extension</div>
+    <div>Item</div>
+    <div>Price</div>
+  </div>
+
+  <div id="rows"></div>
+</div>
+
+<!-- NOTES + TOTALS -->
+<div class="bottom">
+
+  <div class="notes">
+    <div class="note-title">NOTE:</div>
+    <div class="notes-line"></div>
+    <div class="notes-line"></div>
+    <div class="notes-line"></div>
+    <div class="notes-line"></div>
+  </div>
+
+  <div class="totals">
+    <div class="tot-row">
+      <div class="tot-label">SUB-TOTAL:</div>
+      <div class="tot-field" id="subTot">0.00</div>
+    </div>
+
+    <div class="tot-row">
+      <div class="tot-label">TAX (8.875%):</div>
+      <div class="tot-field" id="taxAmt">0.00</div>
+    </div>
+
+    <div class="tot-row">
+      <div class="tot-label">TOTAL:</div>
+      <div class="tot-field" id="totalAmt">0.00</div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- printArea -->
+</div><!-- app -->
+
+<script>
+// Create 18 rows
+for (let i = 1; i <= 18; i++) {
+  const row = document.createElement("div");
+  row.className = "row-item";
+  row.innerHTML = `
+    <div><input></div>
+    <div><input></div>
+    <div><input></div>
+    <div><input></div>
+    <div><input></div>
+    <div><input></div>
+    <div class="col-price"><input class="price"></div>`;
+  document.getElementById("rows").appendChild(row);
+}
+
+// Auto total calculation
+document.querySelectorAll(".price").forEach(p => {
+  p.addEventListener("input", calcTotals);
+});
+
+function calcTotals() {
+  let subtotal = 0;
+  document.querySelectorAll(".price").forEach(p => {
+    subtotal += parseFloat(p.value) || 0;
+  });
+
+  const tax = subtotal * 0.08875;
+  const total = subtotal + tax;
+
+  document.getElementById("subTot").innerText = subtotal.toFixed(2);
+  document.getElementById("taxAmt").innerText = tax.toFixed(2);
+  document.getElementById("totalAmt").innerText = total.toFixed(2);
+}
+
+// Auto increment EST#
+let estCount = parseInt(localStorage.getItem("estCount") || "1");
+document.getElementById("estno").value = estCount;
+document.getElementById("estDisplay").innerText = "Last EST#: " + estCount;
+
+// PDF
+function generatePDF() {
+  html2pdf(document.getElementById("printArea"), {
+    margin: 0,
+    filename: `estimate_${estCount}.pdf`,
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+  });
+
+  estCount++;
+  localStorage.setItem("estCount", estCount);
+  document.getElementById("estDisplay").innerText = "Last EST#: " + estCount;
+}
+</script>
+
 </body>
 </html>
