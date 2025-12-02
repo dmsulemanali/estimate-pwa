@@ -1,4 +1,4 @@
-/* Basic reset */
+/* Reset and fonts */
 * { box-sizing: border-box; font-family: "Times New Roman", Times, serif; }
 body { margin: 12px; background: #f6f6f6; color: #000; -webkit-font-smoothing: antialiased; }
 #app { max-width: 900px; margin: auto; }
@@ -14,60 +14,59 @@ header { text-align: center; margin-bottom: 8px; }
 #controls button { padding:8px 12px; border-radius:6px; border:1px solid #333; background:#fff; cursor:pointer; }
 #estDisplay { margin-left:12px; font-weight:600; }
 
-/* Printable area sized for letter — 8.5in x 11in at screen */
+/* Printable area sized for letter */
 .letter {
-  width: 816px; /* approximate px for letter at 96dpi: 8.5*96 = 816 */
+  width: 816px; /* 8.5in * 96dpi */
   background: #fff;
   padding: 26px;
   margin: auto;
   border: 1px solid #ddd;
 }
 
-/* Client box */
+/* client box */
 .client-box { border:2px solid #ccc; border-radius:18px; padding:12px; margin-bottom:12px; }
 .client-box .row { display:flex; align-items:center; gap:8px; margin:6px 0; }
 .label { font-weight:700; min-width:60px; font-size:14px; }
-.field { border-bottom:1px solid #111; min-height:18px; padding:2px 6px; }
+.field { padding:2px 6px; }
+.field input { width:100%; border: none; border-bottom:1px solid #111; padding:4px 6px; font-size:14px; background:transparent; outline:none; }
+.field input::placeholder { color:#999; font-style:italic; }
 .field.wide { flex:1; min-width:220px; }
 .field.small { width:90px; }
 .field.tiny { width:60px; }
 .field.medium { width:150px; }
 
 /* Table */
-.table-wrap { border-top:2px solid #cfcfcf; border-left:2px solid #cfcfcf; border-right:2px solid #cfcfcf; }
+.table-wrap { border-top:2px solid #cfcfcf; border-left:2px solid #cfcfcf; border-right:2px solid #cfcfcf; margin-bottom:8px;}
 .table-head { display:grid; grid-template-columns: 60px 100px 80px 120px 100px 1fr 90px; background:#eaeaea; border-bottom:2px solid #cfcfcf; padding:8px 6px; font-weight:700; }
 .table-head > div { border-right:1px solid #cfcfcf; padding-left:6px; }
 #rows { display:block; }
-.row-item { display:grid; grid-template-columns: 60px 100px 80px 120px 100px 1fr 90px; border-bottom:1px solid #ddd; min-height:28px; }
-.row-item > div { padding:6px; border-right:1px solid #eee; min-height:18px; }
+.row-item { display:grid; grid-template-columns: 60px 100px 80px 120px 100px 1fr 90px; border-bottom:1px solid #ddd; min-height:36px; align-items:center; }
+.row-item > div { padding:4px; border-right:1px solid #eee; }
+.row-item input { width:100%; border: none; outline:none; padding:4px; background:transparent; font-size:13px; }
 
-/* contenteditable style */
-.row-item > div[contenteditable="true"], .table-head > div, .field[contenteditable="true"] {
-  outline: none;
-}
-.row-item > div[contenteditable="true"]:empty:before,
-.field[contenteditable="true"]:empty:before {
-  content: "\00a0"; /* keep height if empty */
-}
+/* right align price and totals */
+.col-price input { text-align:right; }
+.col-total { text-align:right; padding-right:8px; font-weight:600; }
 
 /* Bottom */
 .bottom { display:flex; gap:12px; margin-top:12px; }
 .notes { flex:1; border:2px solid #ddd; padding:10px; min-height:120px; }
 .note-title { font-style:italic; margin-bottom:6px; }
 .note-field { min-height:18px; border-bottom:1px solid #111; margin-bottom:8px; padding:2px 6px; }
+textarea.note-field { width:100%; height:100px; border:none; outline:none; resize:none; font-family: "Times New Roman", Times, serif; font-size:13px; }
 
 .totals { width:260px; border:2px solid #ddd; padding:6px; display:flex; flex-direction:column; gap:6px; justify-content:flex-start; }
 .tot-row { display:flex; }
 .tot-label { flex:1; font-weight:700; padding:8px; border-right:1px solid #ddd; }
-.tot-field { width:110px; padding:8px; border-left:1px solid #ddd; }
+.tot-field { width:110px; padding:8px; border-left:1px solid #ddd; text-align:right; }
 
-/* small footer */
+/* footer */
 footer { text-align:center; margin-top:8px; font-size:12px; color:#666; }
 
-/* make fields more visible when focused on mobile */
-[contenteditable="true"]:focus { background: #fff7d6; }
+/* focus highlight for inputs on touch */
+input:focus, textarea:focus { background:#fff7d6; }
 
-/* Print styles - help ensure letter size */
+/* print rules */
 @media print {
   body { margin:0; }
   .letter { box-shadow:none; border:none; width:100%; padding:20px; }
