@@ -1,177 +1,102 @@
-// script.js - html2pdf version with automatic calculations and EST#
-(function () {
-  // TAX rate (fixed) -> 8.875% NYC
-  const TAX_RATE = 0.08875;
+// =============== CONFIG ===============
+const TAX_RATE = 0.08875; // 8.875%
 
-  // create rows
-  const rowsContainer = document.getElementById('rows');
-  const ROWS = 14;
-  for (let r = 0; r < ROWS; r++) {
-    const row = document.createElement('div');
-    row.className = 'row-item';
-    row.innerHTML = `
-      <div><input class="col-ite" data-r="${r}" placeholder="${r+1}"></div>
-      <div><input class="col-style" data-r="${r}"></div>
-      <div><input class="col-size" data-r="${r}"></div>
-      <div><input class="col-general" data-r="${r}"></div>
-      <div><input class="col-ext" data-r="${r}"></div>
-      <div><input class="col-item" data-r="${r}"></div>
-      <div class="col-total"><input class="col-price" data-r="${r}" placeholder="0.00"></div>
-    `;
-    rowsContainer.appendChild(row);
-  }
+// =============== AUTO-GENERATE 25 ROWS ===============
+const rowsContainer = document.getElementById("rows");
 
-  // helper: parse float safe
-  function parseMoney(val) {
-    if (!val) return 0;
-    // remove non-numeric except dot and minus
-    val = String(val).replace(/[^0-9.\-]/g, '');
-    const n = parseFloat(val);
-    return isNaN(n) ? 0 : n;
-  }
-  // round to 2 decimals and format
-  function fmt(n) {
-    return (Math.round((n + Number.EPSILON) * 100) / 100).toFixed(2);
-  }
+for (let i = 1; i <= 25; i++) {
+  const row = document.createElement("div");
+  row.className = "table-row";
 
-  // calculate totals
-  function recalc() {
-    const priceEls = document.querySelectorAll('.col-price');
-    let subtotal = 0;
-    priceEls.forEach((el, idx) => {
-      const val = parseMoney(el.value || el.textContent || '');
-      subtotal += val;
-    });
-    const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
+  row.innerHTML = `
+    <input class="cell itemno" data-row="${i}">
+    <input class="cell style" data-row="${i}">
+    <input class="cell size" data-row="${i}">
+    <input class="cell general" data-row="${i}">
+    <input class="cell ext" data-row="${i}">
+    <input class="cell itemname" data-row="${i}">
+    <input class="cell price" data-row="${i}" type="number" step="0.01">
+  `;
 
-    document.getElementById('f_subtotal').innerText = fmt(subtotal);
-    document.getElementById('f_tax').innerText = fmt(tax);
-    document.getElementById('f_total').innerText = fmt(total);
-  }
+  rowsContainer.appendChild(row);
+}
 
-  // attach events to recalc on input change
-  rowsContainer.addEventListener('input', function (e) {
-    if (e.target && e.target.classList.contains('col-price')) {
-      // normalize entry to numeric-ish
-      const cleaned = e.target.value.replace(/[^0-9.]/g, '');
-      e.target.value = cleaned;
-      recalc();
-    } else {
-      // any input may affect layout but prices drive totals
-      // recalc to be safe
-      recalc();
-    }
+// =============== TOTAL CALCULATIONS ===============
+function calculateTotals() {
+  let subtotal = 0;
+
+  // Loop all rows
+  document.querySelectorAll(".price").forEach((priceField) => {
+    const val = parseFloat(priceField.value) || 0;
+    subtotal += val;
   });
 
-  // also recalc when user leaves an input (to catch pasted values)
-  rowsContainer.addEventListener('blur', function () { recalc(); }, true);
+  const tax = subtotal * TAX_RATE;
+  const total = subtotal + tax;
 
-  // EST number handling
-  const estKey = 'estimate_number_v1';
-  function nextEst() {
-    let n = parseInt(localStorage.getItem(estKey) || '0', 10);
-    n = n + 1;
-    localStorage.setItem(estKey, n);
-    return n;
-  }
-  function getCurrentEst() {
-    return parseInt(localStorage.getItem(estKey) || '0', 10);
-  }
-  const estDisplay = document.getElementById('estDisplay');
-  function refreshEstDisplay() {
-    const cur = getCurrentEst();
-    estDisplay.textContent = cur ? `Last EST#: ${String(cur).padStart(4,'0')}` : `EST#: not generated yet`;
-  }
-  refreshEstDisplay();
+  document.getElementById("f_subtotal").innerText = subtotal.toFixed(2);
+  document.getElementById("f_tax").innerText = tax.toFixed(2);
+  document.getElementById("f_total").innerText = total.toFixed(2);
+}
 
-  // Local save/load
-  const saveKey = 'estimate_form_v1';
-  function saveLocal() {
-    const state = { fields: {}, rows: [] };
-    document.querySelectorAll('input[id^="f_"], textarea[id^="f_"]').forEach(el => state.fields[el.id] = el.value || el.innerText);
-    document.querySelectorAll('.row-item').forEach(row => {
-      const rowData = [];
-      row.querySelectorAll('input').forEach(cell => rowData.push(cell.value));
-      state.rows.push(rowData);
-    });
-    localStorage.setItem(saveKey, JSON.stringify(state));
-    alert('Saved locally on this device.');
-  }
-  function loadLocal() {
-    const raw = localStorage.getItem(saveKey);
-    if (!raw) return;
-    try {
-      const state = JSON.parse(raw);
-      Object.keys(state.fields || {}).forEach(k => {
-        const el = document.getElementById(k);
-        if (el) el.value = state.fields[k];
-      });
-      const rows = document.querySelectorAll('.row-item');
-      (state.rows || []).slice(0, rows.length).forEach((rData, i) => {
-        const inputs = rows[i].querySelectorAll('input');
-        rData.forEach((val, j) => { if (inputs[j]) inputs[j].value = val; });
-      });
-      recalc();
-    } catch (e) {
-      console.warn('Failed to load saved form', e);
-    }
-  }
-  loadLocal();
+// Recalculate whenever price changes
+document.addEventListener("input", (e) => {
+  if (e.target.classList.contains("price")) calculateTotals();
+});
 
-  // Reset
-  document.getElementById('resetForm').addEventListener('click', () => {
-    if (!confirm('Clear the form?')) return;
-    document.querySelectorAll('input').forEach(i => {
-      // don't clear est if already set; user wants control maybe
-      if (i.id === 'f_est') i.value = '';
-      else i.value = '';
-    });
-    document.getElementById('f_note').value = '';
-    recalc();
+// =============== ESTIMATE NUMBER AUTO-FILL ===============
+function loadEstimateNumber() {
+  let num = localStorage.getItem("estNumber");
+  if (!num) num = 1;
+
+  document.getElementById("f_est").value = num;
+  document.getElementById("estDisplay").innerText = "Estimate #" + num;
+}
+
+function saveNextEstimate() {
+  let num = parseInt(localStorage.getItem("estNumber") || "1");
+  num++;
+  localStorage.setItem("estNumber", num);
+}
+
+// =============== RESET FORM ===============
+document.getElementById("resetForm").addEventListener("click", () => {
+  if (!confirm("Clear all fields?")) return;
+  window.location.reload();
+});
+
+// =============== SAVE LOCALLY ===============
+document.getElementById("saveLocal").addEventListener("click", () => {
+  const data = {
+    name: f_name.value,
+    date: f_date.value,
+    address: f_address.value,
+    note: f_note.value,
+  };
+  localStorage.setItem("savedEstimate", JSON.stringify(data));
+  alert("Saved locally!");
+});
+
+// =============== PDF GENERATION ===============
+document.getElementById("generatePdf").addEventListener("click", () => {
+  calculateTotals(); // ensure numbers are updated
+
+  const element = document.getElementById("print-area");
+
+  const opt = {
+    margin: [0.3, 0.3, 0.3, 0.3],  
+    filename: `Estimate-${document.getElementById("f_est").value}.pdf`,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+  };
+
+  html2pdf().set(opt).from(element).save().then(() => {
+    saveNextEstimate();
+    loadEstimateNumber();
   });
-  document.getElementById('saveLocal').addEventListener('click', saveLocal);
+});
 
-  // Generate PDF using html2pdf
-  document.getElementById('generatePdf').addEventListener('click', async () => {
-    // If est field empty, auto assign next
-    const estField = document.getElementById('f_est');
-    if (!estField.value.trim()) {
-      const next = nextEst();
-      estField.value = String(next).padStart(4, '0');
-    }
-    refreshEstDisplay();
-
-    // blur active element to remove caret
-    if (document.activeElement) document.activeElement.blur();
-
-    const element = document.getElementById('print-area');
-
-    // html2pdf options for letter size
-    const opt = {
-      margin:       [12, 12, 12, 12],        // top, left, bottom, right in mm (small margin)
-      filename:     `Estimate-EST${(document.getElementById('f_est').value || '0000')}.pdf`,
-      image:        { type: 'jpeg', quality: 1 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false, allowTaint: true },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-
-    try {
-      await html2pdf().set(opt).from(element).save();
-    } catch (err) {
-      console.error('html2pdf error', err);
-      alert('Failed to generate PDF. Try again.');
-    }
-  });
-
-  // service worker registration for PWA
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js').catch(err => {
-      console.warn('ServiceWorker registration failed:', err);
-    });
-  }
-
-  // initial recalc
-  recalc();
-
-})();
+// =============== LOAD ON START ===============
+loadEstimateNumber();
+calculateTotals();
