@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GASKETS "R" US — Free Estimate</title>
+  <title>GASKETS “R” US — Free Estimate</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <!-- jsPDF & html2canvas via CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- html2pdf (includes html2canvas + jsPDF internally) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
   <div id="app">
@@ -17,13 +16,12 @@
         <div class="line1">GASKETS “R” US</div>
         <div class="line2">Guy Goldstein</div>
         <div class="line3">Free Estimate</div>
-        <div class="contact">Cell: 917-687-2276 • Fax. 718-374-6543 • Email: gasketsrusnyc@gmail.com</div>
+        <div class="contact">Cell: 917-687-2276  •  Fax. 718-374-6543 • Email: gasketsrusnyc@gmail.com</div>
         <div class="address">5-09 50th Ave. Apt #LL, L.I.C. NY 11101</div>
       </div>
     </header>
 
     <main>
-      <!-- Controls -->
       <div id="controls">
         <button id="generatePdf">Generate PDF</button>
         <button id="saveLocal">Save (Local)</button>
@@ -31,48 +29,47 @@
         <span id="estDisplay"></span>
       </div>
 
-      <!-- The printable area — sized for Letter -->
-      <div id="print-area" class="letter">
-        <!-- Top rounded client box -->
+      <!-- Printable area sized for Letter -->
+      <div id="print-area" class="letter" role="document" aria-label="Estimate">
         <div class="client-box">
           <div class="row">
             <div class="label">NAME:</div>
-            <div class="field wide" contenteditable="true" id="f_name"></div>
+            <div class="field wide"><input id="f_name" placeholder="Customer name"></div>
             <div class="label">DATE:</div>
-            <div class="field small" contenteditable="true" id="f_date"></div>
+            <div class="field small"><input id="f_date" placeholder="MM/DD/YYYY"></div>
             <div class="label">EST#:</div>
-            <div class="field small" contenteditable="true" id="f_est"></div>
+            <div class="field small"><input id="f_est" placeholder="auto"></div>
           </div>
 
           <div class="row">
             <div class="label">ADDRESS</div>
-            <div class="field wide" contenteditable="true" id="f_address"></div>
+            <div class="field wide"><input id="f_address" placeholder="Address"></div>
             <div class="label">CITY:</div>
-            <div class="field small" contenteditable="true" id="f_city"></div>
+            <div class="field small"><input id="f_city" placeholder="City"></div>
             <div class="label">ST:</div>
-            <div class="field tiny" contenteditable="true" id="f_state"></div>
+            <div class="field tiny"><input id="f_state" placeholder="ST"></div>
             <div class="label">ZIP:</div>
-            <div class="field tiny" contenteditable="true" id="f_zip"></div>
+            <div class="field tiny"><input id="f_zip" placeholder="ZIP"></div>
           </div>
 
           <div class="row">
             <div class="label">PHONE:</div>
-            <div class="field medium" contenteditable="true" id="f_phone"></div>
+            <div class="field medium"><input id="f_phone" placeholder="Phone"></div>
             <div class="label">FAX:</div>
-            <div class="field medium" contenteditable="true" id="f_fax"></div>
+            <div class="field medium"><input id="f_fax" placeholder="Fax"></div>
             <div class="label">M/O#:</div>
-            <div class="field medium" contenteditable="true" id="f_mo"></div>
+            <div class="field medium"><input id="f_mo" placeholder="M/O#"></div>
           </div>
 
           <div class="row">
             <div class="label">OWNER:</div>
-            <div class="field small" contenteditable="true" id="f_owner"></div>
+            <div class="field small"><input id="f_owner" placeholder="Owner"></div>
             <div class="label">G.M:</div>
-            <div class="field small" contenteditable="true" id="f_gm"></div>
+            <div class="field small"><input id="f_gm" placeholder="G.M."></div>
             <div class="label">MANAGER:</div>
-            <div class="field small" contenteditable="true" id="f_manager"></div>
+            <div class="field small"><input id="f_manager" placeholder="Manager"></div>
             <div class="label">CHEF</div>
-            <div class="field small" contenteditable="true" id="f_chef"></div>
+            <div class="field small"><input id="f_chef" placeholder="Chef"></div>
           </div>
         </div>
 
@@ -89,11 +86,7 @@
           </div>
 
           <div id="rows">
-            <!-- We'll create 14 rows statically for exact layout -->
-            <!-- Each cell is contenteditable for direct typing -->
-            <!-- Row format: ite, style, size, general, extension, item, price -->
-            <!-- Repeat 14 times -->
-            <!-- Use template via JS to ensure consistent ids -->
+            <!-- rows are generated by script.js -->
           </div>
         </div>
 
@@ -101,23 +94,21 @@
         <div class="bottom">
           <div class="notes">
             <div class="note-title">NOTE:</div>
-            <div class="note-field" contenteditable="true" id="f_note"></div>
-            <div class="note-field" contenteditable="true"></div>
-            <div class="note-field" contenteditable="true"></div>
+            <textarea id="f_note" class="note-field" placeholder="Notes..."></textarea>
           </div>
 
           <div class="totals">
             <div class="tot-row">
-              <div class="tot-label">SUB- TOTAL:</div>
-              <div class="tot-field" contenteditable="true" id="f_subtotal"></div>
+              <div class="tot-label">SUB-TOTAL:</div>
+              <div class="tot-field" id="f_subtotal">0.00</div>
+            </div>
+            <div class="tot-row">
+              <div class="tot-label">TAX (8.875%):</div>
+              <div class="tot-field" id="f_tax">0.00</div>
             </div>
             <div class="tot-row">
               <div class="tot-label">TOTAL:</div>
-              <div class="tot-field" contenteditable="true" id="f_total"></div>
-            </div>
-            <div class="tot-row">
-              <div class="tot-label">TOTAL:</div>
-              <div class="tot-field" contenteditable="true" id="f_total2"></div>
+              <div class="tot-field" id="f_total">0.00</div>
             </div>
           </div>
         </div>
@@ -126,7 +117,7 @@
     </main>
 
     <footer>
-      <small>Tip: Tap any field to edit. On iPad: Share → Add to Home Screen to install.</small>
+      <small>Tip: Click an input to type. On iPad: Share → Add to Home Screen to install.</small>
     </footer>
   </div>
 
