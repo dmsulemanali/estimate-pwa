@@ -78,24 +78,34 @@ document.getElementById("saveLocal").addEventListener("click", () => {
 });
 
 // =============== PDF GENERATION ===============
-document.getElementById("generatePdf").addEventListener("click", () => {
-  calculateTotals(); // ensure numbers are updated
+function generatePDF() {
 
-  const element = document.getElementById("print-area");
+  const element = document.getElementById("printArea");
 
   const opt = {
-    margin: [0.3, 0.3, 0.3, 0.3],  
-    filename: `Estimate-${document.getElementById("f_est").value}.pdf`,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+    margin:       0,
+    filename:     `estimate_${estCount}.pdf`,
+    image:        { type: 'jpeg', quality: 1 },
+    html2canvas:  { 
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      letterRendering: true,
+      dpi: 300
+    },
+    jsPDF:        { 
+      unit: 'pt', 
+      format: 'letter', 
+      orientation: 'portrait'
+    }
   };
 
   html2pdf().set(opt).from(element).save().then(() => {
-    saveNextEstimate();
-    loadEstimateNumber();
+    estCount++;
+    localStorage.setItem("estCount", estCount);
+    document.getElementById("estDisplay").innerText = "Last EST#: " + estCount;
   });
-});
+}
 
 // =============== LOAD ON START ===============
 loadEstimateNumber();
